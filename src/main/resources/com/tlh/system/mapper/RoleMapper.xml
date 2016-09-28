@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tlh.system.mapper.RoleMapper">
+    
+    <!-- 添加角色 -->
+    <insert id="saveRole" parameterType="role">
+        insert into sys_roles(roleName,roleDesc,roleValue) values(#{roleName},#{roleDesc},#{roleValue})
+    </insert>
+    
+    <!-- 删除用户_角色中间表 -->
+    <delete id="deleteUser_Role" parameterType="map">
+        delete from sys_user_role_link
+        <where>
+            <choose>
+                <when test="flag">
+                    rid=#{value}
+                </when>
+                <otherwise>
+                    uid=#{value}
+                </otherwise>
+            </choose>
+        </where>
+    </delete>
+    
+    <!-- 删除角色 -->
+    <delete id="deleteRole" parameterType="role">
+        DELETE from sys_roles
+        <where>
+            id=#{id}
+        </where>
+    </delete>
+    
+    <!-- 更新角色 -->
+    <update id="updateRole" parameterType="role">
+        update sys_roles
+        <set>
+			<if test="roleName!=null and roleName!=''">
+			    roleName=#{roleName},
+			</if>
+			<if test="roleValue!=null">
+			    roleValue=#{roleValue},
+			</if>
+			<if test="roleDesc!=null">
+			    roleDesc=#{roleDesc},
+			</if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+    
+    <!-- 获取角色信息 -->
+    <select id="getRoleById" resultType="role" parameterType="int">
+        SELECT * from sys_roles where id=#{value}
+    </select>
+    
+    <!-- 用户授权：获取所有的角色信息 -->
+    <select id="queryAllRoles" resultType="role">
+        SELECT * from sys_roles
+    </select>
+    
+    <!-- 获取用户的角色 -->
+    <select id="queryUserRoles" parameterType="int" resultType="int">
+        SELECT u.rid from sys_user_role_link u where u.uid=#{value}
+    </select>
+    
+    <!-- 用户授权 -->
+    <insert id="authorization" parameterType="map">
+        insert into sys_user_role_link(uid,rid) values
+        <foreach collection="rIds" item="item" separator=",">
+            (#{uId},#{item})
+        </foreach>
+    </insert>
+    
+    <!-- datagrid查询 -->
+    <select id="queryRoleInfo" resultType="role" parameterType="role">
+        SELECT * from sys_roles r
+        <if test="_parameter!=null">
+            <include refid="query_where"/>
+        </if>
+        LIMIT #{from},#{rows}
+    </select>
+    
+    <select id="queryRoleCount" resultType="int" parameterType="role">
+        SELECT count(*) from sys_roles r
+        <if test="_parameter!=null">
+            <include refid="query_where"/>
+        </if>
+    </select>
+    <sql id="query_where">
+        <where>
+            
+        </where>
+    </sql>
+</mapper>

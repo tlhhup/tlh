@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tlh.system.mapper.LogMapper">
+    
+    <insert id="saveLogs" parameterType="log">
+        <selectKey keyColumn="id" keyProperty="id" resultType="string" order="BEFORE">
+            SELECT UUID()
+        </selectKey>
+        INSERT INTO `sys_logs` (
+			id,
+			operator,
+			opername,
+			operparams,
+			operresult,
+			resultmsg,
+			ip,
+			opertime
+		)
+		VALUES
+			(
+				#{id},
+				#{operator},
+				#{operName},
+				#{operParams},
+				#{operResult},
+				#{resultMsg},
+				#{ip},
+				NOW()
+			)
+    </insert>
+    
+    <sql id="query_where">
+        <where>
+            
+        </where>
+    </sql>
+    
+    <select id="queryLogs" resultType="log" parameterType="log">
+        SELECT * from `sys_logs` l
+        <if test="_parameter!=null">
+            <include refid="query_where"/>
+        </if>
+        LIMIT #{from},#{rows}
+    </select>
+    
+    <select id="queryLogsCounts" resultType="int" parameterType="log">
+        SELECT count(*) from `sys_logs` l
+        <if test="_parameter!=null">
+           <include refid="query_where"/>
+        </if>
+    </select>
+    
+</mapper>

@@ -1,0 +1,38 @@
+
+html,body,div,span,p,ul,ol,li,table,td,th,h3{margin:0;padding:0;}
+
+body{
+	background:#52c3dd ; 
+}
+
+
+#loginBanner{height:180px;background:url(../images/middle-long-bg.png) repeat-x;}
+#bodyBanner{position:fixed;top:0;left:0;background:none;width:1100px;z-index:-10;}
+
+#loginPanel{
+	width:1100px;
+	margin:0 auto;
+	margin-top:-70px;
+	height:280px; 
+}
+
+.logoshow{width:580px;height:280px;float:left; position:relative;}
+.logoshow img{width:90px;height:100px;top:90px;left:0px;position:absolute;}
+.logoshow h3{position:absolute;left:90px;top:100px;color:#3399cc;text-shadow:5px 5px 5px #efefef;font-weight:"Î¢ÈíÑÅºÚ","ºÚÌå";font-size:43px;}
+.logoshow p{position:absolute;left:95px;top:165px;color:#aaa;}
+
+ 
+.loginFromPanel{width:400px;height:280px;float:right;}
+.loginContainterpanel{width:380px;height:280px;background:#fff;border-radius:5px;border:2px solid #ccc;}
+.loginContainterpanel h3{height:38px;line-height:40px;color:#555;text-indent:20px; background:url(../images/login_title_line.png) center bottom no-repeat;}
+.loginContainterpanel h3 img{margin-top:10px;}
+.loginContainterpanel h3 span{margin-top:-10px;}
+.loginContainterpanel p{height:45px;line-height:45px;position:relative;}
+.loginContainterpanel p label{width:110px;float:left;text-align:right;}
+.loginContainterpanel p  input{border:1px solid #eee;border-bottom:1px solid #aaa;width:200px;height:24px;line-height:24px;text-indent:2px;}
+.loginContainterpanel p  img {position:absolute; top:9px;}
+
+.loginContainterpanel .btn_submit{margin-left:50px;background:#39C;border-radius:5px;font-size:18px;color:#fff;width:270px;height:36px;line-height:32px;cursor:pointer;margin-top:20px;}
+
+#bottomCopy{position:fixed;bottom:0;font-size:12px;height:35px;line-height:35px;color:#fff;opacity:0.8;width:100%;text-align:center;}
+ 

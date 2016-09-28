@@ -1,0 +1,204 @@
+/* 
+=============================================================================
+
+All of this is based on nice work from mrflix (http://www.felixniklas.de/) 
+in Paperfold (https://developer.mozilla.org/en-US/demosdetail/paperfold-css)
+
+=============================================================================
+
+Every fold is holding two identical divs: top and bottom 
+the children divs are positioned relative to it
+the slice grows from zero to 1/n of the elements height (n = number of slices)
+
+Easing functions
+================
+
+kappa = 0.5522847498307936
+- half circle (low): cubic-bezier(0.552, 0.000, 1.000, 0.448)
+- half circle (top): cubic-bezier(0.000, 0.552, 0.448, 1.000) 
+- ease cubic-bezier(0.250, 0.100, 0.250, 1.000)
+- inverse-ease cubic-bezier(0.750, 0.000, 0.750, 0.900) 
+
+- self tested cubic-bezier(0.500, 0.200, 0.900, 0.820)
+*/
+
+.paperfold {
+    overflow: hidden;
+    position: relative;
+    -webkit-transform: translateZ(0);
+}
+
+.paperfold .fold {
+
+    -webkit-perspective: 1000px;
+    -moz-perspective: 1000px;
+    -o-perspective: 1000px;
+    -ms-perspective: 1000px;
+
+    height: 0;
+    perspective: 1000px;
+    position: relative;
+}
+
+.paperfold, 
+.paperfold .fold {
+
+    -webkit-transform-style: preserve-3d;
+    -moz-transform-style: preserve-3d;
+    -o-transform-style: preserve-3d;
+    -ms-transform-style: preserve-3d;
+
+    transform-style: preserve-3d;
+}
+
+
+
+
+/* They are the two folds - top and bottom */
+.paperfold .top,
+.paperfold .bottom {
+
+    background-image: -webkit-linear-gradient(top, rgba(255,255,255,0.5), rgba(255,255,255,0.55) 3%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0));
+    background-image: -moz-linear-gradient(top, rgba(255,255,255,0.5), rgba(255,255,255,0.55) 3%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0));
+    background-image: -o-linear-gradient(top, rgba(255,255,255,0.5), rgba(255,255,255,0.55) 3%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0));
+    background-image: -ms-linear-gradient(top, rgba(255,255,255,0.5), rgba(255,255,255,0.55) 3%, rgba(255,255,255,0.5) 66%, rgba(255,255,255,0));
+
+
+    -webkit-transform-origin: top;
+    -moz-transform-origin: top;
+    -o-transform-origin: top;
+    -ms-transform-origin: top;
+
+    -webkit-transform: rotateX(-90deg);
+    -moz-transform: rotateX(-90deg);
+    -o-transform: rotateX(-90deg);
+    -ms-transform: rotateX(-90deg);
+
+    background-image: linear-gradient(top, 
+                        rgba(255,255,255,0.5), 
+                        rgba(255,255,255,0.55) 3%, 
+                        rgba(255,255,255,0.5) 66%, 
+                        rgba(255,255,255,0));
+    background-color: #505455;
+    overflow: hidden;
+    position: relative;
+    transform-origin: top;
+    transform: rotateX(-90deg);
+    width: 100%;
+}
+
+.paperfold .bottom {
+
+    background-image: -webkit-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0.5) 34%, rgba(255,255,255,.95) 97%, rgba(255,255,255,1));
+    background-image: -moz-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0.5) 34%, rgba(255,255,255,.95) 97%, rgba(255,255,255,1));
+    background-image: -o-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0.5) 34%, rgba(255,255,255,.95) 97%, rgba(255,255,255,1));
+    background-image: -ms-linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0.5) 34%, rgba(255,255,255,.95) 97%, rgba(255,255,255,1));
+
+    -webkit-transform-origin: bottom;
+    -moz-transform-origin: bottom;
+    -o-transform-origin: bottom;
+    -ms-transform-origin: bottom;
+
+    -webkit-transform: rotateX(90deg);
+    -moz-transform: rotateX(90deg);
+    -o-transform: rotateX(90deg);
+    -ms-transform: rotateX(90deg);
+
+    /*background-image: linear-gradient(top, rgba(255,255,255,0), rgba(255,255,255,0.5) 34%, rgba(255,255,255,.95) 97%, rgba(255,255,255,1));*/
+    bottom: 0;
+    position: absolute;
+    transform-origin: bottom;
+    transform: rotateX(90deg);
+}
+
+/* Inner holder for the content */
+.paperfold .inner {
+    position: absolute;
+}
+
+/* Background for the default elements */
+.paperfold .default-content {
+    background: #FFF;
+    position: absolute;
+    top: 0;
+    z-index: 100;
+}
+
+.paperfold.ready .fold {
+
+    -webkit-transition: height 500ms linear;
+    -moz-transition: height 500ms linear;
+    -o-transition: height 500ms linear;
+    -ms-transition: height 500ms linear;
+
+    transition: height 500ms linear;
+}
+
+/* Closing transition */
+.paperfold.ready .fold .top,
+.paperfold.ready .fold .bottom {
+    -webkit-transition: -webkit-transform 500ms cubic-bezier(0.000, 0.450, 1.000, 0.950), background-color 500ms ease-in;
+    -moz-transition: -moz-transform 500ms cubic-bezier(0.000, 0.450, 1.000, 0.950), background-color 500ms ease-in;
+    -o-transition: -o-transform 500ms cubic-bezier(0.000, 0.450, 1.000, 0.950), background-color 500ms ease-in;
+    -ms-transition: -ms-transform 500ms cubic-bezier(0.000, 0.450, 1.000, 0.950), background-color 500ms ease-in;
+
+    transition: transform 500ms cubic-bezier(0.000, 0.450, 1.000, 0.950), background-color 500ms ease-in;
+}
+
+
+/* Opening transition */
+.paperfold.visible .fold .top,
+.paperfold.visible .fold .bottom {
+
+    -webkit-transform: rotateX(0);
+    -moz-transform: rotateX(0);
+    -o-transform: rotateX(0);
+    -ms-transform: rotateX(0);
+
+    -webkit-transition: -webkit-transform 500ms cubic-bezier(0.000, 0.050, 1.000, 0.550), background-color 500ms ease-out;
+    -moz-transition: -moz-transform 500ms cubic-bezier(0.000, 0.050, 1.000, 0.550), background-color 500ms ease-out;
+    -o-transition: -o-transform 500ms cubic-bezier(0.000, 0.050, 1.000, 0.550), background-color 500ms ease-out;
+    -ms-transition: -ms-transform 500ms cubic-bezier(0.000, 0.050, 1.000, 0.550), background-color 500ms ease-out;
+
+    background-color: #FFF;
+
+    transform: rotateX(0);
+    transition: transform 500ms cubic-bezier(0.000, 0.050, 1.000, 0.550), background-color 500ms ease-out;
+}
+
+.paperfold.ready, 
+.paperfold.ready .fold, 
+.paperfold.ready .fold .top, 
+.paperfold.ready .fold .bottom,
+.paperfold.ready .fold .inner,
+.paperfold.ready.visible,
+.paperfold.ready.visible .fold,
+.paperfold.ready.visible .fold .top, 
+.paperfold.ready.visible .fold .bottom {
+
+    -webkit-transition-duration: 400ms;
+    -moz-transition-duration: 400ms;
+    -o-transition-duration: 400ms;
+    -ms-transition-duration: 400ms;
+
+    transition-duration: 400ms;
+}
+
+.paperfold.no-transition, 
+.paperfold.no-transition .fold, 
+.paperfold.no-transition .fold .top, 
+.paperfold.no-transition .fold .bottom,
+.paperfold.no-transition .fold .inner,
+.paperfold.visible.no-transition,
+.paperfold.visible.no-transition .fold,
+.paperfold.visible.no-transition .fold .top, 
+.paperfold.visible.no-transition .fold .bottom {
+
+    -webkit-transition: none;
+    -moz-transition: none;
+    -o-transition: none;
+    -ms-transition: none;
+
+    transition: none;
+}
+

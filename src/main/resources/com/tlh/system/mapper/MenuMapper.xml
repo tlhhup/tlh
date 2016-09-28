@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tlh.system.mapper.MenuMapper">
+    
+    <!-- 获取角色的菜单 -->
+    <select id="queryRoleMenus" parameterType="int" resultType="menu">
+        SELECT * from sys_menus m where m.id in(SELECT r.rightId from sys_role_right_link r where r.roleId=#{value})
+    </select>
+    
+    <!-- 清除角色的权限 -->
+    <delete id="clearRoleRights" parameterType="int">
+        delete from sys_role_right_link 
+        <where>
+	        roleId=#{value}
+        </where>
+    </delete>
+    
+    <!-- 角色授权：批量处理 -->
+    <insert id="authorRights" parameterType="map">
+        insert into sys_role_right_link(roleId,rightId) values
+        <foreach collection="rightIds" item="item" separator=",">
+            (#{rId},#{item})
+        </foreach>
+    </insert>
+    
+    <!-- 修改菜单 -->
+    <update id="updateMenu" parameterType="menu">
+        update sys_menus
+        <set>
+            <if test="title!=null and title!=''">
+                title=#{title},
+            </if>
+            <if test="url!=null">
+                url=#{url},
+            </if>
+            <if test="pId!=null and pId!=''">
+                pId=#{pId},
+            </if>
+            <if test="sort!=null">
+                sort=#{sort},
+            </if>
+            <if test="serials!=null">
+                serials=#{serials},
+            </if>
+            <if test="icon!=null and icon!=''">
+                icon=#{icon},
+            </if>
+            	isButton=#{isButton},
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+    
+    <!-- 删除菜单 -->
+    <delete id="deleteRoleAndMenu" parameterType="map">
+       delete from sys_role_right_link
+         <where>
+             <choose>
+                 <when test="flag">
+                     roleId=#{value}
+                 </when>
+                 <otherwise>
+		             rightId=#{value}
+                 </otherwise>
+             </choose>
+         </where>
+    </delete>
+    <delete id="deleteMenu" parameterType="menu">
+        DELETE from sys_menus
+        <where>
+        	id=#{id}
+        </where>
+    </delete>
+    
+    <!-- 获取指定菜单的层级 -->
+    <select id="getSerials" parameterType="int" resultType="int">
+        SELECT m.serials from sys_menus m where m.id=#{value}
+    </select>
+    
+    <!-- 添加菜单 -->
+    <insert id="saveMenu" parameterType="menu">
+		INSERT into sys_menus(title,url,sort,serials,icon,rightPos,rightCode,pId,isButton)
+			values(#{title},#{url},#{sort},#{serials},#{icon},#{rightPos},#{rightCode},#{pId},#{isButton})  
+    </insert>
+    
+    <!-- 获取最大权限位上的权限码 -->
+    <select id="getMaxRightPosAndMaxRightCode" resultType="menu">
+        SELECT
+			MAX(rightPos) AS rightPos,
+			MAX(rightCode) AS rightCode
+		FROM
+			sys_menus
+		WHERE
+			rightPos = (
+				SELECT
+					MAX(rightPos)
+				FROM
+					sys_menus
+			)
+    </select>
+    
+    <!-- 通过地址查询权限信息 -->
+    <select id="findMenuByUrl" parameterType="string" resultType="menu">
+        SELECT * from sys_menus m where m.url=#{value}
+    </select>
+    
+    <!-- 查询菜单信息 -->
+    <select id="findMenuInfos" parameterType="menu" resultType="menu">
+        SELECT * from sys_menus m
+        <where>
+			<choose>
+			    <when test="serials!=null and serials==0">
+			        m.serials=#{serials} and m.pId is null
+			    </when>
+			    <otherwise>
+			        m.serials=#{serials}
+			    </otherwise>
+			</choose>
+			<if test="pId!=null">
+			    and m.pId=#{pId}
+			</if>
+			<if test="id!=null">
+			    and m.id=#{id}
+			</if>
+        </where> 
+    </select>
+    
+    <!-- 获取一级菜单或则子菜单 -->
+    <select id="getChildrens" resultType="menu" parameterType="int">
+        select * from sys_menus m 
+        <where>
+			 <choose>
+			    <when test="_parameter!=null and _parameter!=''">
+			       m.pId=#{value}
+			    </when>
+			    <otherwise>
+			       m.pId is null
+			    </otherwise>
+			</choose>
+        </where>
+        ORDER BY m.sort ASC
+    </select>
+    
+    <!-- 获取所有的权限 -->
+    <select id="findAllMenuInfos" resultType="menu">
+         SELECT * FROM sys_menus m
+    </select>
+    <!-- 获取treegrid菜单 -->
+    <select id="queryFirstSerialMenus" parameterType="menu" resultType="menu">
+         SELECT * FROM sys_menus m 
+         <include refid="query_where"/>
+         LIMIT #{from},#{rows}
+    </select>
+    
+    <select id="getMenuCount" parameterType="menu" resultType="int">
+          select count(*) from sys_menus m
+          <include refid="query_where"/>
+    </select>
+    
+    <sql id="query_where">
+        <where>
+             m.pId IS NULL
+         </where>
+    </sql>
+    
+</mapper>

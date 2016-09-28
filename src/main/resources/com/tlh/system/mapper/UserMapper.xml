@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tlh.system.mapper.UserMapper">
+    
+    <insert id="saveUserInfo" parameterType="user">
+        insert into sys_users(id,userName,password,realName,registTime) values(#{id},#{userName},#{password},#{realName},NOW())
+    </insert>
+    
+    <delete id="deleteUserInfo" parameterType="int">
+        delete from sys_users where id=#{value}
+    </delete>
+    
+    <select id="getLoginCount" parameterType="int" resultType="int">
+        SELECT u.loginCount from sys_users u where u.id=#{value}
+    </select>
+    
+    <update id="updateLoginInfo" parameterType="user">
+        update sys_users
+        <set>
+            <if test="loginCount!=null">
+                loginCount=#{loginCount},
+            </if>
+            	lastLogin=NOW()
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+    
+    <update id="updatePassword" parameterType="user">
+        update sys_users set password=#{password} where id=#{id}
+    </update>
+    
+    <update id="updateRealName" parameterType="user">
+        update sys_users set realName=#{realName} where id=#{id}
+    </update>
+    
+    <!-- 用户权限关联查询 -->
+    <resultMap type="user" id="user_rights">
+        <id column="id" property="id"/>
+        <result column="userName" property="userName"/>
+        <result column="realName" property="realName"/>
+        <result column="password" property="password"/>
+        <result column="registTime" property="registTime"/>
+        <result column="lastLogin" property="lastLogin"/>
+        <result column="loginCount" property="loginCount"/>
+        <collection property="roles" ofType="role">
+            <id column="rId" property="id"/>
+            <result column="roleValue" property="roleValue"/>
+            <result column="roleDesc" property="roleDesc"/>
+            <result column="roleName" property="roleName"/>
+            <collection property="menus" ofType="menu">
+                <id column="mId" property="id"/>
+                <result column="icon" property="icon"/>
+                <result column="pId" property="pId"/>
+                <result column="rightCode" property="rightCode"/>
+                <result column="rightPos" property="rightPos"/>
+                <result column="serials" property="serials"/>
+                <result column="sort" property="sort"/>
+                <result column="title" property="title"/>
+                <result column="url" property="url"/>
+            </collection>
+        </collection>
+    </resultMap>
+    
+    <select id="validateUserInfo" parameterType="user" resultMap="user_rights">
+        SELECT
+			u.*, r.id AS rId,r.roleValue,r.roleDesc,r.roleName,
+			m.id AS mId,m.icon,m.pId,m.rightCode,m.rightPos,
+			m.serials,m.sort,m.title,m.url
+		FROM
+			sys_users u
+		INNER JOIN sys_user_role_link ur ON u.id = ur.uid
+		INNER JOIN sys_roles r ON ur.rid = r.id
+		INNER JOIN sys_role_right_link rr ON r.id = rr.roleId
+		INNER JOIN sys_menus m ON rr.rightId = m.id
+		WHERE
+			u.userName = #{userName} and u.password=#{password}
+    </select>
+    
+    <select id="checkUserName" parameterType="string" resultType="user">
+        SELECT * from sys_users u where u.userName=#{value}
+    </select>
+    
+    <!-- datagrid条件查询 -->
+    <sql id="query_Where">
+		<where>
+			<if test="userName!=null and userName!=''">
+			    and username=#{userName}
+			</if>
+		</where>
+    </sql>
+    
+    <select id="queryUsers" resultType="user" parameterType="user">
+        SELECT * from sys_users
+		<include refid="query_Where"/>
+		LIMIT #{from},#{rows}
+    </select>
+    
+    <select id="getTotalCount" resultType="int">
+        SELECT count(*) from sys_users
+		<include refid="query_Where"/>
+    </select>
+    
+</mapper>
